@@ -1,5 +1,5 @@
 #!/usr/bin/env python
- # -*- coding: UTF-8 -*- 
+ # -*- coding: UTF-8 -*-
 import os
 import sys
 
@@ -11,6 +11,10 @@ if sys.getdefaultencoding() != default_encoding:
 #打印对象
 def prn_obj(obj):
     print ', '.join(['%s:%s' % item for item in obj.__dict__.items()])
+
+#换行打印对象
+def prn_obj2(obj):
+    print '\n'.join(['%s\t%s' % item for item in obj.__dict__.items()])
 
 #解析存在兼职对的字符串
 def analyze_key_value(xml_str):
@@ -25,12 +29,12 @@ def analyze_key_value(xml_str):
 
 #apk的信息
 class ApkInfo(object):
-	package_name = None
+	packageName = None
 	versionCode = 0
 	versionName = None
 
-	app_name = None
-	icon = None
+	appName = None
+	icLauncher = None
 
 	#构造方法
 	def __init__(self,apk_path=None):
@@ -40,20 +44,20 @@ class ApkInfo(object):
 
 	#获取应用基本信息
 	def loadInfo(self,infolist):
-		global package_name
+		global packageName
 		for info in infolist:
 			key_dict = analyze_key_value(info)
 			if 'package' in info and 'versionCode=' in info:
-				self.package_name = key_dict['name']
+				self.packageName = key_dict['name']
 				self.versionCode = key_dict['versionCode']
 				self.versionName = key_dict['versionName']
 				continue
 
 			if 'application' in info and 'label=' in info and 'icon=' in info :
-				self.app_name = key_dict['label']
-				self.icon = key_dict['icon']
+				self.appName = key_dict['label']
+				self.icLauncher = key_dict['icon']
 
-			
+
 #程序主逻辑开始
 if len(sys.argv)>1 and '.apk' in  sys.argv[1]:
 	#apk路径
@@ -61,18 +65,4 @@ if len(sys.argv)>1 and '.apk' in  sys.argv[1]:
 
 	#创建一个apkInfo对象
 	apk_info = ApkInfo(apk_path)
-	prn_obj(apk_info)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	prn_obj2(apk_info)

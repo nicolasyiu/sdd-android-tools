@@ -1,4 +1,5 @@
 VERSION="0.1.1"
+SRC_PATH=$(cd `dirname $0`;cd ../src;pwd) #current shell path
 sdd(){
   if [ $# -lt 1 ];then
     sdd help
@@ -18,7 +19,7 @@ sdd(){
       echo $VERSION
     ;;
     "apkinfo")
-      echo `/Users/saxer/Develope/GitHub/saxer-android-tools/src/apkinfo.py $1`
+      $SRC_PATH/apkinfo.py $2
     ;;
   esac
 }
