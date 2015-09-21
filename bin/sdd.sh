@@ -13,12 +13,12 @@ sdd(){
       echo "Usage:"
       echo "  sdd help                              Show this message"
       echo "  sdd --version                         Print out the latest released version of sdd"
-      echo "  sdd apkinfo <apk-file-path>           Show app infos"
+      echo "  sdd i <apk-file-path>           Show app infos"
     ;;
     "--version")
       echo $VERSION
     ;;
-    "apkinfo")
+    "i")
       $SRC_PATH/apkinfo.py $2
     ;;
   esac
