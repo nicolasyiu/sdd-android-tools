@@ -61,8 +61,7 @@ class ApkInfo(object):
 #程序主逻辑开始
 if len(sys.argv)>1 and '.apk' in  sys.argv[1]:
 	#apk路径
-	apk_path = sys.argv[1]
-
+	apk_path = sys.argv[1].replace(' ','\ ')
 	#创建一个apkInfo对象
 	apk_info = ApkInfo(apk_path)
 	prn_obj2(apk_info)
