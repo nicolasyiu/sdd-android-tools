@@ -15,3 +15,8 @@ $ versionCode	24370000
   versionName	2.437
   appName	微信
 ```
+
+```shell
+$ sdd i p $apkfilepath
+$ com.tencent.mm,apkpath.apk
+```
