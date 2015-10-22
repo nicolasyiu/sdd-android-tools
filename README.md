@@ -7,6 +7,8 @@ source sdd-android-tools/bin/sdd.sh
 ```
 
 ## usage
+
+查看apk基本信息
 ```shell
 $ sdd i $apkfilepath
 $ versionCode	24370000
@@ -16,11 +18,13 @@ $ versionCode	24370000
   appName	微信
 ```
 
+只查看包名
 ```shell
 $ sdd i p $apkfilepath
 $ com.tencent.mm,apkpath.apk
 ```
 
+查看签名信息
 ```shell
 $ sdd v sign $apkfilepath
 Owner: CN=Tencent, OU=Tencent Guangzhou Research and Development Center, O=Tencent Technology(Shenzhen) Company Limited, L=Shenzhen, ST=Guangdong, C=86
