@@ -14,7 +14,7 @@ def prn_obj(obj):
 
 #换行打印对象
 def prn_obj2(obj):
-    print '\n'.join(['%s\t%s' % item for item in obj.__dict__.items()])
+    print '\n'.join([( prn_obj2(item) if isinstance(item,List) else ('%s\t%s' % item)) for item in obj.__dict__.items()])
 
 #解析存在兼职对的字符串
 def analyze_key_value(xml_str):
@@ -36,7 +36,7 @@ class ApkInfo(object):
 	appName = None
 	icLauncher = None
 
-	manifestMetas = {}
+	meta = {}
 
 	#构造方法
 	def __init__(self,apk_path=None):
@@ -63,10 +63,21 @@ class ApkInfo(object):
 
 	# 获取应用meta信息
 	def loadMetas(self,xml_tree):
-		self.manifestMetas={}
+		self.meta={}
 		for i in range(0,len(xml_tree)):
 			info = xml_tree[i].replace('\n','')
 			if 'E: meta-data' in info:
 				name = xml_tree[i+1].replace('\n','').split("=\"")[1].split("\"")[0]
 				value =  (xml_tree[i+2].replace('\n','').split('type 0x')[1].split(')')[1]) if 'type 0x' in xml_tree[i+2] else xml_tree[i+2].replace('\n','').split("=\"")[1].split("\"")[0]
-				self.manifestMetas[name]=value
+				self.meta[name]=value
+
+	def contact_obj2(self,obj):
+		array = []
+		for item in obj.__dict__.items():
+			if type(item[1])==dict:
+				print 'True'
+				for key in item[1].keys():
+					array.append('%s:%s\t%s' % (item[0] , key ,item[1][key]))
+			else:
+				array.append(('%s\t%s' % item))
+		return '\n'.join(array)
