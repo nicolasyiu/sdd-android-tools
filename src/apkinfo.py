@@ -68,5 +68,5 @@ class ApkInfo(object):
 			info = xml_tree[i].replace('\n','')
 			if 'E: meta-data' in info:
 				name = xml_tree[i+1].replace('\n','').split("=\"")[1].split("\"")[0]
-				value = xml_tree[i+2].replace('\n','').split("=\"")[1].split("\"")[0]
+				value =  (xml_tree[i+2].replace('\n','').split('type 0x')[1].split(')')[1]) if 'type 0x' in xml_tree[i+2] else xml_tree[i+2].replace('\n','').split("=\"")[1].split("\"")[0]
 				self.manifestMetas[name]=value
