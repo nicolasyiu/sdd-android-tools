@@ -73,9 +73,8 @@ class ApkInfo(object):
 
 	def contact_obj2(self,obj):
 		array = []
-		for item in obj.__dict__.items():
+		for item in sorted(obj.__dict__.items(),key=lambda tup: tup[0]):
 			if type(item[1])==dict:
-				print 'True'
 				for key in item[1].keys():
 					array.append('%s:%s\t%s' % (item[0] , key ,item[1][key]))
 			else:
