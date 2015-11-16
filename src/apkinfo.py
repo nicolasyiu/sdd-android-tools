@@ -36,11 +36,15 @@ class ApkInfo(object):
 	appName = None
 	icLauncher = None
 
+	manifestMetas = {}
+
 	#构造方法
 	def __init__(self,apk_path=None):
 		if apk_path :
 			infosList = os.popen("aapt d badging "+apk_path).readlines()
 			self.loadInfo(infosList)
+
+			self.loadMetas(os.popen("aapt dump xmltree "+apk_path+" AndroidManifest.xml").readlines())
 
 	#获取应用基本信息
 	def loadInfo(self,infolist):
@@ -56,3 +60,13 @@ class ApkInfo(object):
 			if 'application' in info and 'label=' in info and 'icon=' in info :
 				self.appName = key_dict['label']
 				self.icLauncher = key_dict['icon']
+
+	# 获取应用meta信息
+	def loadMetas(self,xml_tree):
+		self.manifestMetas={}
+		for i in range(0,len(xml_tree)):
+			info = xml_tree[i].replace('\n','')
+			if 'E: meta-data' in info:
+				name = xml_tree[i+1].replace('\n','').split("=\"")[1].split("\"")[0]
+				value = xml_tree[i+2].replace('\n','').split("=\"")[1].split("\"")[0]
+				self.manifestMetas[name]=value
