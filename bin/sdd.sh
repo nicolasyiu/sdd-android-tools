@@ -21,7 +21,7 @@ sdd(){
       echo "  sdd v sign <apk-file-path>            Show  app signature"
       echo "  sdd b install <apk-file-parent-path>  Batch install apk"
       echo "  sdd b uninstall <packges-file-path>   Batch uninstall apk"
-      echo "  sdd sync-myapp b <packges-file-path> <output-dir> Download apks from myapp"
+      echo "  sdd sync-myapp <packges-file-path> <output-dir> Download apks from myapp"
     ;;
     "--version")
       echo $VERSION
@@ -71,14 +71,10 @@ sdd(){
       fi
     ;;
     "sync-myapp")
-      if [ "b" = $2 ]
-      then
-        for package in `cat $3`
-        do
-          wget `$SRC_PATH/myapp.py download $package` -O $4/$package.apk
-        done
-      else
-      fi
+      for package in `cat $2`
+      do
+        wget `$SRC_PATH/myapp.py download $package` -O $3/$package.apk
+      done
     ;;
   esac
 }
