@@ -71,7 +71,7 @@ sdd(){
       fi
     ;;
     "sync-myapp")
-      if [ "b" == $2 ]
+      if [ "b" = $2 ]
       then
         for package in `cat $3`
         do
