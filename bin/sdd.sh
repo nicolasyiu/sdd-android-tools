@@ -17,6 +17,8 @@ sdd(){
       echo "  sdd i <apk-file-path>                 Show app infos"
       echo "  sdd i p <apk-file-path>               Show  app packageName"
       echo "  sdd v sign <apk-file-path>            Show  app signature"
+      echo "  sdd b install <apk-file-parent-path>  Batch install apk"
+      echo "  sdd b uninstall <packges-file-path>   Batch uninstall apk"
     ;;
     "--version")
       echo $VERSION
@@ -41,6 +43,20 @@ sdd(){
         sudo rm -r $TMP_PATH/apk_files/* >> /dev/null 2>&1 #delete unused files
       else
         echo 'none'
+      fi
+    ;;
+    "b")
+      if [ "install" = $2 ]
+      then
+        for apk in $3/*.apk
+        do
+          adb install $apk
+        done
+      else
+        for package in `cat $3`
+        do
+          adb uninstall $package
+        done
       fi
     ;;
   esac
