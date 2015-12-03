@@ -73,6 +73,8 @@ class ApkInfo(object):
 					value=xml_tree[i+2].replace('\n','').split('type 0x')[1].split(')')[1]
 				elif 'android:resource' in xml_tree[i+2]:
 					value=xml_tree[i+2].replace('\n','').split(')=')[1]
+				elif '=@0x' in xml_tree[i+2]:
+					value="@"+xml_tree[i+2].replace("\n", '').split("=@")[1]
 				else:
 					value=xml_tree[i+2].replace('\n','').split("=\"")[1].split("\"")[0]
 				self.meta[name]=value
