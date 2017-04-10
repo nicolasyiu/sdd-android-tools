@@ -21,6 +21,10 @@ sdd(){
       echo "  sdd v sign <apk-file-path>            Show  app signature"
       echo "  sdd b install <apk-file-parent-path>  Batch install apk"
       echo "  sdd b uninstall <packges-file-path>   Batch uninstall apk"
+      echo "  sdd r decode <apk-file-path>               Decode apkfiles "
+      echo "  sdd r change <apk-file-path> <package>   Decode and change apk package name"
+      echo "  sdd r build <decoded-files-path>      Rebuild a apk"
+      echo "  sdd r sign <non-signed-apk-path> <keystore-path> <pwd1> <pwd2>     Sign apk"
       echo "  sdd sync-myapp <packges-file-path> <output-dir> Download apks from myapp"
     ;;
     "--version")
@@ -75,6 +79,23 @@ sdd(){
       do
         wget `$SRC_PATH/myapp.py download $package` -O $3/$package.apk
       done
+    ;;
+     "r")
+      if [ "decode" = $2 ]
+      then
+         apktool d $3
+      elif [ "change" = $2 ]
+      then
+         $SRC_PATH/change_package.py $3 $4
+      elif [ "build" = $2 ]
+      then
+         apktool b $3
+      elif [ "sign" = $2 ]
+      then
+         $SRC_PATH/sign_apk.py $3 $4 $5 $6 >> /dev/null 2>&1
+      else
+         apktool d $3
+      fi
     ;;
   esac
 }
