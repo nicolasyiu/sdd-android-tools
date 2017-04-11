@@ -23,6 +23,7 @@ sdd(){
       echo "  sdd b uninstall <packges-file-path>   Batch uninstall apk"
       echo "  sdd r decode <apk-file-path>               Decode apkfiles "
       echo "  sdd r change <apk-file-path> <package>   Decode and change apk package name"
+      echo "  sdd r merge <src-apk-path> <dest-apk-path> <new-package-name>  Merge two apk ,but do not build"
       echo "  sdd r build <decoded-files-path>      Rebuild a apk"
       echo "  sdd r sign <non-signed-apk-path> <keystore-path> <pwd1> <pwd2>     Sign apk"
       echo "  sdd sync-myapp <packges-file-path> <output-dir> Download apks from myapp"
@@ -33,7 +34,7 @@ sdd(){
     "i")
       if [ "p" = $2 ]
       then
-        $SRC_PATH/i_p.py $3
+        $SRC_PATH/i_p.rb $3
       elif [ "myapp" = $2 ]
       then
         if [ "d" = $3 ]
@@ -43,7 +44,7 @@ sdd(){
           $SRC_PATH/myapp.py $3
         fi
       else
-        $SRC_PATH/i.py $2
+        $SRC_PATH/i.rb $2
       fi
     ;;
     "v")
@@ -86,7 +87,15 @@ sdd(){
          apktool d $3
       elif [ "change" = $2 ]
       then
-         $SRC_PATH/change_package.py $3 $4
+         $SRC_PATH/r_change.rb $3 $4
+      elif [ "merge" = $2 ]
+      then
+         #echo ${3/.apk/ }
+         #echo ${4/.apk/ }
+         #$SRC_PATH/r_change.rb $3 $5
+         #$SRC_PATH/r_change.rb $4 $5
+         $SRC_PATH/r_merge.rb $3 $4 $5
+         #rm -r ${3/.apk/}
       elif [ "build" = $2 ]
       then
          apktool b $3
