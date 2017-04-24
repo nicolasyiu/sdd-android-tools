@@ -70,7 +70,7 @@ class MergeApk
         File.readlines(child_path).each do |line|
 
           gsubed_line = line
-          line.scan(/(0x7f[\d|a-f]{6})/) do |matched|
+          line.scan(/(0x7f[\d|a-f]{6})/) do |matched| #FIXME::应该忽略这些变量 0x7f000000000000L
             next if matched.empty?
             key = ids.key(matched[0])
             next unless key

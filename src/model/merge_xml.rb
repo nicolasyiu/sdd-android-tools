@@ -29,7 +29,7 @@ class MergeXml
       if !target_app_item.attributes['android:name'] && src_app_item.attributes['android:name']
         target_app_item.add_attribute('android:name', src_app_item.attributes['android:name'])
       end
-      
+
       %w(meta-data activity service receiver provider).each do |node_name|
         merge_node(src_app_item, target_app_item, node_name)
       end
