@@ -19,6 +19,11 @@ class MergeApk
     self.merge_files(self.src_file_path)
   end
 
+  #将smali中包含 0x7f..... 的字符串重新命名（根据public.xml来命名）
+  def smali_0x_ids_replace(unziped_path)
+
+  end
+
   def merge_files(src_path)
     Dir::entries(src_path).each do |filename|
       src_child_path = "#{src_path}/#{filename.gsub("$", "\\$")}"
@@ -42,10 +47,11 @@ class MergeApk
       end
 
       if !File.exists?(target_child_path)
+        puts "cp #{src_child_path} #{target_child_path}"
         system("cp #{src_child_path} #{target_child_path}")
       elsif src_child_path.include?('original/')
       elsif filename.end_with? '.xml'
-        # elsif filename=='AndroidManifest.xml'
+        puts "merge xml\t#{src_child_path} #{target_child_path}"
         MergeXml.new(src_child_path, target_child_path)
       else
       end
