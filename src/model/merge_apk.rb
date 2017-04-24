@@ -18,6 +18,7 @@ class MergeApk
     self.target_file_path = target_apk_path.gsub(".apk", '')
     self.src_public_ids = {}
     self.target_public_ids = {}
+    self.merged_public_ids = {}
   end
 
   def start
@@ -29,8 +30,11 @@ class MergeApk
     self.smali_0x_ids_replace(self.src_file_path, self.src_public_ids)
     self.smali_0x_ids_replace(self.target_file_path, self.target_public_ids)
 
-    # self.merge_files(self.src_file_path)
+    self.merge_files(self.src_file_path)
 
+    init_public_ids("#{self.target_file_path}/res/values/public.xml", :merged_public_ids)
+    puts self.merged_public_ids
+    self.smali_0x_ids_recover(self.target_file_path, self.merged_public_ids)
   end
 
   #将public.xml中的id读取到内存
@@ -66,12 +70,51 @@ class MergeApk
         File.readlines(child_path).each do |line|
 
           gsubed_line = line
-          line.scan(/(0x7f[\d|a|b|c|d|e|f]{6})/) do |matched|
+          line.scan(/(0x7f[\d|a-f]{6})/) do |matched|
             next if matched.empty?
             key = ids.key(matched[0])
             next unless key
             gsubed_line = gsubed_line.gsub(matched[0], key) #'<app_name«string>'
             puts "#{child_path}:#{matched[0]}\t#{key}"
+          end
+          contents << gsubed_line
+        end
+
+        File.open(child_path, "w+") do |f|
+          f.puts contents.join("")
+          f.close
+        end
+      end
+    end
+  end
+
+  # #将smali中包含 <app_name«string> 重新定义为 0x7f.....
+  def smali_0x_ids_recover(unziped_path, ids={})
+    Dir::entries(unziped_path).each do |filename|
+      child_path = "#{unziped_path}/#{filename}"
+      if filename=='.' || filename=='..'
+        next
+      end
+      if File.directory?(child_path)
+        smali_0x_ids_recover(child_path, ids)
+        next
+      end
+      if filename.end_with?("smali")
+
+        if child_path.include?("/android/support/")
+          next
+        end
+
+        contents = []
+        File.readlines(child_path).each do |line|
+
+          gsubed_line = line
+          line.scan(/(<[\S!«]+«[\S!«]+>)/) do |matched|
+            id = ids[matched[0]]
+            next unless id
+            gsubed_line = gsubed_line.gsub(matched[0], id) #'<app_name«string>'
+            gsubed_line = gsubed_line.gsub('const/high16', 'const')
+            puts "#{child_path}:#{matched[0]}\t#{id}"
           end
           contents << gsubed_line
         end
@@ -97,22 +140,24 @@ class MergeApk
         next
       end
 
-      #忽略友盟等信息的合并
-      if src_child_path.include?("smali/u/aly") ||
-          src_child_path.include?("smali/com/umeng") ||
-          src_child_path.include?("smali/com/tencent/mm") ||
-          src_child_path.include?("smali/android/support") ||
-          src_child_path.include?("unknown/com/tencent/mm")
-        next
-      end
+      #如果目标apk包含友盟等信息,忽略友盟等信息的合并
+      # if (src_child_path.include?("smali/u/aly") ||
+      #     src_child_path.include?("smali/com/umeng") ||
+      #     src_child_path.include?("smali/com/tencent/mm") ||
+      #     src_child_path.include?("smali/android/support") ||
+      #     src_child_path.include?("unknown/com/tencent/mm")) && File.exists?(target_child_path)
+      #   next
+      # end
 
       if !File.exists?(target_child_path)
-        puts "cp #{src_child_path.gsub("$", "\\$")} #{target_child_path.gsub("$", "\\$")}"
+        # puts "cp #{src_child_path.gsub("$", "\\$")} #{target_child_path.gsub("$", "\\$")}"
         system("cp #{src_child_path.gsub("$", "\\$")} #{target_child_path.gsub("$", "\\$")}")
       elsif src_child_path.include?('original/')
       elsif filename.end_with? '.xml'
-        puts "merge xml\t#{src_child_path} #{target_child_path}"
+        # puts "merge xml\t#{src_child_path} #{target_child_path}"
         MergeXml.new(src_child_path, target_child_path)
+      elsif File.exists?(target_child_path)
+        next
       else
       end
     end

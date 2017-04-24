@@ -25,9 +25,16 @@ class MergeXml
 
       src_app_item = src_doc.root.elements['application']
       target_app_item = target_doc.root.elements['application']
+      #application name
+      if !target_app_item.attributes['android:name'] && src_app_item.attributes['android:name']
+        target_app_item.add_attribute('android:name', src_app_item.attributes['android:name'])
+      end
+      
       %w(meta-data activity service receiver provider).each do |node_name|
         merge_node(src_app_item, target_app_item, node_name)
       end
+
+      save_target_xml(target_doc)
     end
 
     if root_doc_name=='resources'
@@ -35,6 +42,7 @@ class MergeXml
       %w(string attr bool color dimen integer style).each do |res|
         if self.source_xml_path.end_with?("#{res}s.xml")
           merge_node(src_doc.root, target_doc.root, res)
+          merge_node(src_doc.root, target_doc.root, 'item')
         end
       end
 
