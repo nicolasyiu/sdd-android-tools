@@ -22,7 +22,7 @@ class ChangeApk
   #指定路径的文件替换
   def content_replace(path, old_package, new_package)
     Dir::entries(path).each do |filename|
-      child_path = path+"/"+filename
+      child_path = "#{path}/#{filename}"
       if filename=='.' || filename=='..'
         next
       end

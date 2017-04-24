@@ -153,5 +153,5 @@ class MergeXml
       end
     end
   end
-  
+
 end

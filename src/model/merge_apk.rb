@@ -4,6 +4,10 @@ class MergeApk
   attr_accessor :src_file_path
   attr_accessor :target_file_path
 
+  attr_accessor :src_public_ids # 类似地：{'<app_name«string>': '0x7f030000','<mi_ic_launcher«drawable>':'0x7f020001'}
+  attr_accessor :target_public_ids
+  attr_accessor :merged_public_ids
+
   attr_accessor :new_package
 
   def initialize(src_apk_path, target_apk_path, new_package)
@@ -12,27 +16,83 @@ class MergeApk
     ChangeApk.new(target_apk_path, self.new_package).start
     self.src_file_path = src_apk_path.gsub(".apk", '')
     self.target_file_path = target_apk_path.gsub(".apk", '')
+    self.src_public_ids = {}
+    self.target_public_ids = {}
   end
 
   def start
     puts "start to merge files"
-    self.merge_files(self.src_file_path)
+
+    init_public_ids("#{self.src_file_path}/res/values/public.xml", :src_public_ids)
+    init_public_ids("#{self.target_file_path}/res/values/public.xml", :target_public_ids)
+
+    self.smali_0x_ids_replace(self.src_file_path, self.src_public_ids)
+    self.smali_0x_ids_replace(self.target_file_path, self.target_public_ids)
+
+    # self.merge_files(self.src_file_path)
+
   end
 
-  #将smali中包含 0x7f..... 的字符串重新命名（根据public.xml来命名）
-  def smali_0x_ids_replace(unziped_path)
+  #将public.xml中的id读取到内存
+  def init_public_ids(xml_path, hash_attr=:src_public_ids)
+    target_doc = REXML::Document.new(File.new(xml_path))
+    target_root = target_doc.root
+    target_root.get_elements('public').each do |node|
+      type = node.attributes['type'].to_s.to_sym
+      name = node.attributes['name'].to_s
+      id = node.attributes['id'].to_s
+      self.send(hash_attr)["<#{name}«#{type}>"]=id
+    end
+  end
 
+  # #将smali中包含 0x7f..... 的字符串重新命名（根据public.xml来命名）
+  def smali_0x_ids_replace(unziped_path, ids={})
+    Dir::entries(unziped_path).each do |filename|
+      child_path = "#{unziped_path}/#{filename}"
+      if filename=='.' || filename=='..'
+        next
+      end
+      if File.directory?(child_path)
+        smali_0x_ids_replace(child_path, ids)
+        next
+      end
+      if filename.end_with?("smali")
+
+        if child_path.include?("/android/support/")
+          next
+        end
+
+        contents = []
+        File.readlines(child_path).each do |line|
+
+          gsubed_line = line
+          line.scan(/(0x7f[\d|a|b|c|d|e|f]{6})/) do |matched|
+            next if matched.empty?
+            key = ids.key(matched[0])
+            next unless key
+            gsubed_line = gsubed_line.gsub(matched[0], key) #'<app_name«string>'
+            puts "#{child_path}:#{matched[0]}\t#{key}"
+          end
+          contents << gsubed_line
+        end
+
+        File.open(child_path, "w+") do |f|
+          f.puts contents.join("")
+          f.close
+        end
+      end
+    end
   end
 
   def merge_files(src_path)
     Dir::entries(src_path).each do |filename|
-      src_child_path = "#{src_path}/#{filename.gsub("$", "\\$")}"
+      src_child_path = "#{src_path}/#{filename}"
       target_child_path = "#{src_child_path.gsub(Regexp.new("^#{self.src_file_path}"), self.target_file_path)}"
       if filename=='.' || filename=='..'
         next
       end
       if File.directory?(src_child_path)
-        system("[ ! -d #{target_child_path} ] && mkdir #{target_child_path}")
+        system("[ ! -d #{target_child_path.gsub("$", "\\$")} ] && mkdir #{target_child_path.gsub("$", "\\$")}")
         merge_files(src_child_path)
         next
       end
@@ -47,8 +107,8 @@ class MergeApk
       end
 
       if !File.exists?(target_child_path)
-        puts "cp #{src_child_path} #{target_child_path}"
-        system("cp #{src_child_path} #{target_child_path}")
+        puts "cp #{src_child_path.gsub("$", "\\$")} #{target_child_path.gsub("$", "\\$")}"
+        system("cp #{src_child_path.gsub("$", "\\$")} #{target_child_path.gsub("$", "\\$")}")
       elsif src_child_path.include?('original/')
       elsif filename.end_with? '.xml'
         puts "merge xml\t#{src_child_path} #{target_child_path}"
