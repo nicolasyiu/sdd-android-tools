@@ -30,6 +30,15 @@ class MergeApk
     self.smali_0x_ids_replace(self.src_file_path, self.src_public_ids)
     self.smali_0x_ids_replace(self.target_file_path, self.target_public_ids)
 
+    #移动特别的代码库，防止代码冲突
+    #FIXME::
+    move_package = MovePackage.new(self.target_file_path)
+    move_package.start('com.umeng.analytics', 'extra.merge.umeng.analytics')
+    move_package.start('okhttp3', 'extra.merge.ko3http')
+    move_package.start('android.support', 'extra.merge.support.android')
+    move_package.start('com.nostra13.universalimageloader', 'extra.merge.nostra13.universalimageloader')
+    move_package.start('u.aly', 'extra.merge.aly.yo')
+
     self.merge_files(self.src_file_path)
 
     init_public_ids("#{self.target_file_path}/res/values/public.xml", :merged_public_ids)
@@ -141,11 +150,16 @@ class MergeApk
       end
 
       #如果目标apk包含友盟等信息,忽略友盟等信息的合并
-      # if (src_child_path.include?("smali/u/aly") ||
-      #     src_child_path.include?("smali/com/umeng") ||
+      # if
       #     src_child_path.include?("smali/com/tencent/mm") ||
       #     src_child_path.include?("smali/android/support") ||
-      #     src_child_path.include?("unknown/com/tencent/mm")) && File.exists?(target_child_path)
+      #     src_child_path.include?("unknown/com/tencent/mm")
+      #   next
+      # end
+      # if src_child_path.include?("smali/okhttp3")
+      #   next
+      # end
+      # if src_child_path.include?("smali/com/umeng")
       #   next
       # end
 

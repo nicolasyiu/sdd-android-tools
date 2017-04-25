@@ -16,7 +16,7 @@ class ChangeApk
   def start
     system("apktool d #{self.apk_path}")
     content_replace(self.unziped_path, self.apk_info.package_name, self.new_package)
-    mv_r_files(self.unziped_path,self.apk_info.package_name,self.new_package)
+    mv_r_files(self.unziped_path, self.apk_info.package_name, self.new_package)
   end
 
   #指定路径的文件替换
@@ -53,7 +53,7 @@ class ChangeApk
     dir_path = file_path + "/smali"
     new_package.gsub(".", "/").split("/").each do |name|
       dir_path = dir_path + "/" + name
-      command = "mv #{file_path}/smali/#{old_package.gsub(".", "/")}/R* #{file_path}/smali/#{new_package.gsub( ".", "/")}/"
+      command = "mv #{file_path}/smali/#{old_package.gsub(".", "/")}/R* #{file_path}/smali/#{new_package.gsub(".", "/")}/"
       system("mkdir " + dir_path)
       puts command
       system(command)

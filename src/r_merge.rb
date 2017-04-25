@@ -3,6 +3,7 @@
 require 'pathname'
 require 'rexml/document'
 root_path = Pathname.new(File.dirname(__FILE__)).realpath
+require "#{root_path}/model/move_package"
 require "#{root_path}/model/apk_info"
 require "#{root_path}/model/change_apk"
 require "#{root_path}/model/merge_xml"

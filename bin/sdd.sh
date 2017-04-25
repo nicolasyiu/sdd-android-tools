@@ -23,6 +23,7 @@ sdd(){
       echo "  sdd b uninstall <packges-file-path>   Batch uninstall apk"
       echo "  sdd r decode <apk-file-path>               Decode apkfiles "
       echo "  sdd r change <apk-file-path> <package>   Decode and change apk package name"
+      echo "  sdd r move_package <uziped-apk-files-path> <old-package>  <new-package> move special resource packages to new packages"
       echo "  sdd r merge <src-apk-path> <dest-apk-path> <new-package-name>  Merge two apk ,but do not build"
       echo "  sdd r build <decoded-files-path>      Rebuild a apk"
       echo "  sdd r sign <non-signed-apk-path> <keystore-path> <pwd1> <pwd2>     Sign apk"
@@ -102,6 +103,9 @@ sdd(){
       elif [ "sign" = $2 ]
       then
          $SRC_PATH/sign_apk.py $3 $4 $5 $6 >> /dev/null 2>&1
+      elif [ "move_package" = $2 ]
+      then
+         $SRC_PATH/r_move_package.rb $3 $4 $5
       else
          apktool d $3
       fi
